@@ -1,30 +1,25 @@
 //your code here
-const sortableList = document.querySelector(".flex");
-const items = sortableList.querySelectorAll(".image");
+document.addEventListener("DOMContentLoaded", function() {
+  const images = document.querySelectorAll(".image");
+  let selectedImage = null;
 
-items.forEach(item => {
-    item.addEventListener("dragstart", () => {
-        // Adding dragging class to item after a delay
-        setTimeout(() => item.classList.add("dragging"), 0);
+  images.forEach(image => {
+    image.addEventListener("dragstart", function(e) {
+      selectedImage = this;
     });
-    // Removing dragging class from item on dragend event
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
+
+    image.addEventListener("dragover", function(e) {
+      e.preventDefault();
+    });
+
+    image.addEventListener("drop", function(e) {
+      e.preventDefault();
+      if (selectedImage !== null && selectedImage !== this) {
+        // Swap background images
+        const tempImage = this.style.backgroundImage;
+        this.style.backgroundImage = selectedImage.style.backgroundImage;
+        selectedImage.style.backgroundImage = tempImage;
+      }
+    });
+  });
 });
-
-const initSortableList = (e) => {
-    e.preventDefault();
-    const draggingItem = document.querySelector(".dragging");
-    // Getting all items except currently dragging and making array of them
-    let siblings = [...sortableList.querySelectorAll(".item:not(.dragging)")];
-
-    // Finding the sibling after which the dragging item should be placed
-    let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-    });
-
-    // Inserting the dragging item before the found sibling
-    sortableList.insertBefore(draggingItem, nextSibling);
-}
-
-sortableList.addEventListener("dragover", initSortableList);
-sortableList.addEventListener("dragenter", e => e.preventDefault());
