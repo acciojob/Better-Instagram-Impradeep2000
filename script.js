@@ -1,26 +1,45 @@
-function startDragging(event) {
-	event.dataTransfer.setData("text" , event.target.id);
-}
+const images = document.querySelectorAll('.image');
 
-function allowDrop(event) {
-	event.preventDefault();
-}
+let draggedImage = null;
 
+// Add dragstart event listener to all images
+images.forEach((image) => {
+    image.addEventListener('dragstart', (event) => {
+        draggedImage = event.target;
+        event.dataTransfer.setData('text/plain', ''); // Necessary for Firefox
+        setTimeout(() => {
+            event.target.style.display = 'none'; // Hide the image during the drag operation
+        }, 0);
+    });
 
-function dropped(event) {
-	// console.log(event.target);
-	// The Current container
-	const temp_id = event.target.id;
-	const innerText1 = event.target.innerText;
-	//The replacing container 
-	const data_id = event.dataTransfer.getData("text");
-	const container = document.getElementById(data_id);
-	const innerText2 = container.innerText;
+    image.addEventListener('dragend', () => {
+        setTimeout(() => {
+            draggedImage.style.display = 'block'; // Show the image after the drag operation
+            draggedImage = null;
+        }, 0);
+    });
+});
 
-	//Swapping the container according to their id and innerText
-	container.id = temp_id;
-	container.innerText = innerText1;
-	event.target.id = data_id;
-	event.target.innerText = innerText2;
-	
-}
+// Add dragover and drop event listeners to the parent container
+const parent = document.getElementById('parent');
+parent.addEventListener('dragover', (event) => {
+    event.preventDefault();
+});
+
+parent.addEventListener('drop', (event) => {
+    event.preventDefault();
+    if (draggedImage) {
+        // Swap the innerHTML (text) of the dragged and dropped elements
+        const temp = draggedImage.innerHTML;
+        draggedImage.innerHTML = event.target.innerHTML;
+        event.target.innerHTML = temp;
+
+        // Reset the border style (if any) from previously selected elements
+        images.forEach((image) => {
+            image.classList.remove('selected');
+        });
+
+        // Add a border to the currently selected element
+        event.target.classList.add('selected');
+    }
+});
